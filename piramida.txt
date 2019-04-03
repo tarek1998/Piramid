@@ -1,0 +1,111 @@
+#include "graphics.h"
+#include <math.h>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#define pi 3.14;
+float x_1, x_2, y_1, y_2, alfa = 3.1415 / 8, theta = 3.1415 / 8;
+float xa = 4, ya = 4, za = 0, xb = 10, yb = 4, zb = 0, xc = 10, yc = 10, zc = 0, xd = 4, yd = 10, zd = 0, xv = 7, yv = 7, zv = 5;
+int xemax, yemax;
+int xe(float x)
+// normalizarea coordonatei x
+{
+	return((int)floor((x - x_1) / (x_2 - x_1)*xemax));
+}
+int ze(float z)
+// normalizarea coordonatei y
+{
+	return((int)floor((y_2 - z) / (y_2 - y_1)*yemax));
+}
+void axe3D()
+{
+	setcolor(0);
+	line(xe(x_1 / 2), ze(0), xe(x_2), ze(0));
+	line(xe(0), ze(0), xe(0), ze(y_2));
+	line(xe(0), ze(0), xe(0 + x_1 * cos(alfa)), ze(0 + x_1 * sin(alfa)));
+	outtextxy(xe(0) - 15, ze(0) - 15, "O");
+	outtextxy(xe(x_2) - 20, ze(0) - 20, "x");
+	outtextxy(xe(x_2) - 6, ze(0) - 7, ">");
+	outtextxy(xe(0) + 15, ze(y_2) + 5, "z");
+	outtextxy(xe(0) - 1, ze(y_2) + 1, "^");
+	outtextxy(xe(x_1*cos(alfa)), ze(x_1*sin(alfa)), "y");
+}
+void linie3D(float x0, float y0, float z0, float x, float y, float z)
+{
+	line(xe(x0 - y0 * cos(alfa)), ze(z0 - y0 * sin(alfa)),
+		xe(x - y * cos(alfa)), ze(z - y * sin(alfa)));
+
+}
+typedef struct { float x, y, z; } punct;
+punct G[50][50];
+float f(float x, float y)
+{
+	return (0.2*sin(x*x + y * y));
+}
+void deseneazaSuprafata()
+{
+	int i, j, n;
+	float h;
+	h = fabs(x_1) / 25; //dimensiunea unui patrat mic
+	n = 25; //numarul de linii ale gridului
+	for (i = 0;i<n; i++) //constructia gridului
+		for (j = 0;j<n; j++)
+		{
+
+			G[i][j].x = x_1 / 2.0 + i * h;
+			G[i][j].y = x_1 / 2.0 + j * h;
+			G[i][j].z = f(G[i][j].x, G[i][j].y);
+		}
+	setcolor(0); //desenare propriu-zisa
+	for (j = 1; j<n; j++)
+		for (i = 1; i<n; i++)
+		{
+			linie3D(G[i - 1][j].x, G[i - 1][j].y, G[i - 1][j].z, G[i][j].x,
+
+				G[i][j].y, G[i][j].z);
+
+			linie3D(G[i][j - 1].x, G[i][j - 1].y, G[i][j - 1].z, G[i][j].x,
+
+				G[i][j].y, G[i][j].z);
+		}
+
+}
+void deseneazaPiramida() {
+	linie3D(xa, ya, za, xb, yb, zb);
+	linie3D(xb, yb, zb, xc, yc, zc);
+	linie3D(xc, yc, zc, xd, yd, zd);
+	linie3D(xd, yd, zd, xa, ya, za);
+	linie3D(xv, yv, zv, xa, ya, za);
+	linie3D(xv, yv, zv, xb, yb, zb);
+	linie3D(xv, yv, zv, xc, yc, zc);
+	linie3D(xv, yv, zv, xd, yd, zd);
+}
+void rotatieOZ() {
+	float xaa = xa, xbb = xb, xcc = xc, xdd = xd, xvv = xv;
+	xa = xa*cos(theta) - ya*sin(theta);ya = xaa*sin(theta) + ya*cos(theta);
+	xb = xb*cos(theta) - yb*sin(theta);yb = xbb*sin(theta) + yb*cos(theta);
+	xc = xc*cos(theta) - yc*sin(theta);yc = xcc*sin(theta) + yc*cos(theta);
+	xd = xd*cos(theta) - yd*sin(theta);yd = xdd*sin(theta) + yd*cos(theta);
+	xv = xv*cos(theta) - yv*sin(theta);yv = xvv*sin(theta) + yv*cos(theta);
+}
+int main()
+{
+	printf("Limitele domeniului orizontal:\n");
+	printf("x_1="); scanf("%f", &x_1);
+	printf("x_2="); scanf("%f", &x_2);
+	y_1 = x_1; y_2 = x_2;
+	initwindow(800, 800, "Grafic suprafata: 2/10*sin(x^2+y^2)", 200, 200);
+	xemax = getmaxx(); yemax = getmaxy();
+	do {
+	setbkcolor(14);
+	cleardevice();
+	axe3D();
+	deseneazaPiramida();
+	rotatieOZ();
+	Sleep (100);
+	} while (1);
+	getchar();getchar();
+	closegraph();
+	return 0;
+}
